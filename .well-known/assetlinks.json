@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.colorconnect.flow",
+      "sha256_cert_fingerprints": [
+        "F8:18:A6:14:EB:28:CA:7C:B1:60:34:E4:22:5A:4C:97:28:D9:E3:F0:FB:84:DE:D1:EB:0A:1E:C8:12:3C:2A:D8"
+      ]
+    }
+  }
+]
