@@ -3,10 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Color Connect Challenge</title>
-<meta name="description" content="A friend challenged you to a Color Connect level. Can you beat their time?">
-<meta property="og:title" content="Color Connect: can you beat me?">
-<meta property="og:description" content="Connect the colors and fill every cell. Tap to take the challenge.">
+<title>Color Connect</title>
+<script>
+// Challenge links before 2026-09-30 were /c/<level>?t=...&s=... (no file -> this 404 page).
+// Send them to the real page at /c/?l=<level>&... (the game reads both forms).
+(function () {
+  var m = location.pathname.match(/^\/c\/(\d+)\/?$/);
+  if (!m) return;
+  var rest = location.search.replace(/^\?/, "");
+  location.replace("/c/?l=" + m[1] + (rest ? "&" + rest : ""));
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
 <style>
@@ -30,66 +37,16 @@
   .play { background:var(--green); }
   .store { background:#fff; color:var(--ink); font-size:19px; }
   .note { opacity:.85; font-size:15px; max-width:340px; margin:8px auto 0; }
+  .appstore { background:#1A1240; color:#fff; font-size:19px; }
   [hidden] { display:none !important; }
 </style>
 </head>
 <body>
-  <main id="challenge" hidden>
-    <p class="brand">COLOR CONNECT</p>
-    <h1 id="level">LEVEL</h1>
-    <p class="time" id="time" hidden></p>
-    <p class="tag" id="tag">Can you solve it?</p>
-    <div class="dots" aria-hidden="true">
-      <span style="background:#FF6B6B"></span><span style="background:#4DABF7"></span>
-      <span style="background:#51CF66"></span><span style="background:#FCC419"></span>
-      <span style="background:#9775FA"></span><span style="background:#FF922B"></span>
-    </div>
-    <a class="btn play" id="open" href="#" hidden>Open in game</a>
-    <a class="btn store" id="store" href="#">Get it on Google Play</a>
-    <p class="note" id="note" hidden>Color Connect is on Android for now. Open this link on an Android phone to play the challenge.</p>
-  </main>
-  <main id="missing" hidden>
+  <main>
     <p class="brand">COLOR CONNECT</p>
     <h1>Oops</h1>
     <p class="tag">This page doesn't exist.</p>
     <a class="btn store" href="/">Go home</a>
   </main>
-<script>
-(function () {
-  var PKG = "com.colorconnect.flow";
-  var m = location.pathname.match(/^\/c\/(\d+)\/?$/);
-  if (!m || +m[1] < 1) { document.getElementById("missing").hidden = false; return; }
-  document.getElementById("challenge").hidden = false;
-  var level = +m[1];
-  var q = new URLSearchParams(location.search);
-  var t = q.get("t");
-  document.title = "Color Connect: Level " + level + " challenge";
-  document.getElementById("level").textContent = "LEVEL " + level;
-  if (t && /^\d+$/.test(t)) {
-    var cs = +t, min = Math.floor(cs / 6000), sec = Math.floor(cs / 100) % 60, c = cs % 100;
-    var el = document.getElementById("time");
-    el.textContent = min + ":" + String(sec).padStart(2, "0") + "." + String(c).padStart(2, "0");
-    el.hidden = false;
-    document.getElementById("tag").textContent = "Can you beat my time?";
-  }
-  // The game reads this exact link back from the Play install referrer (link=...), so a
-  // brand-new player lands straight in the challenge after installing.
-  var link = location.origin + location.pathname + location.search;
-  var referrer = "utm_source=challenge&utm_medium=share&utm_campaign=level&link=" + encodeURIComponent(link);
-  var store = "https://play.google.com/store/apps/details?id=" + PKG + "&referrer=" + encodeURIComponent(referrer);
-  document.getElementById("store").href = store;
-  var android = /Android/i.test(navigator.userAgent);
-  if (android) {
-    // In-app browsers (LINE, Facebook, Instagram) usually don't fire App Links, so give an
-    // explicit button: intent:// opens the game, or falls back to the store link.
-    var open = document.getElementById("open");
-    open.href = "intent://" + location.host + location.pathname + location.search +
-      "#Intent;scheme=https;package=" + PKG + ";S.browser_fallback_url=" + encodeURIComponent(store) + ";end";
-    open.hidden = false;
-  } else {
-    document.getElementById("note").hidden = false;
-  }
-})();
-</script>
 </body>
 </html>
