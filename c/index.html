@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Color Connect Challenge</title>
+<meta name="description" content="A friend challenged you to a Color Connect level. Can you beat their time?">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Color Connect">
+<meta property="og:title" content="Color Connect: can you beat me?">
+<meta property="og:description" content="Connect the colors and fill every cell. Tap to take the challenge.">
+<meta property="og:image" content="https://ikaizen.github.io/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Color Connect: a solved puzzle board. Can you beat my time?">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
+<style>
+  :root { --top:#8C7BFF; --bot:#3A22C9; --ink:#1A1240; --gold:#FFE58A; --green:#51CF66; }
+  * { box-sizing:border-box; }
+  html,body { margin:0; min-height:100%; }
+  body { font-family:"Baloo 2",system-ui,sans-serif; color:#fff; text-align:center;
+         background:linear-gradient(var(--top),var(--bot)) fixed; min-height:100vh;
+         display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px 16px; }
+  .brand { color:var(--gold); font-weight:800; letter-spacing:.06em; font-size:18px; margin:0 0 4px; }
+  h1 { font-size:clamp(44px,13vw,72px); line-height:1; margin:0; font-weight:800;
+       text-shadow:0 3px 0 var(--ink),0 0 2px var(--ink); }
+  .time { font-size:clamp(28px,8vw,40px); font-weight:800; margin:14px 0 4px; }
+  .tag { color:var(--gold); font-size:22px; font-weight:800; margin:0 0 28px; }
+  .dots { display:flex; gap:10px; justify-content:center; margin:0 0 28px; }
+  .dots span { width:22px; height:22px; border-radius:50%; box-shadow:inset 0 -3px 0 rgba(0,0,0,.18); }
+  .btn { display:block; width:100%; max-width:340px; margin:0 auto 14px; padding:16px 20px; border-radius:20px;
+         font:800 22px "Baloo 2",system-ui,sans-serif; color:#fff; text-decoration:none;
+         border:3px solid var(--ink); box-shadow:0 6px 0 var(--ink); }
+  .btn:active { transform:translateY(4px); box-shadow:0 2px 0 var(--ink); }
+  .play { background:var(--green); }
+  .store { background:#fff; color:var(--ink); font-size:19px; }
+  .note { opacity:.85; font-size:15px; max-width:340px; margin:8px auto 0; }
+  .appstore { background:#1A1240; color:#fff; font-size:19px; }
+  [hidden] { display:none !important; }
+</style>
+</head>
+<body>
+  <main id="challenge" hidden>
+    <p class="brand">COLOR CONNECT</p>
+    <h1 id="level">LEVEL</h1>
+    <p class="time" id="time" hidden></p>
+    <p class="tag" id="tag">Can you solve it?</p>
+    <div class="dots" aria-hidden="true">
+      <span style="background:#FF6B6B"></span><span style="background:#4DABF7"></span>
+      <span style="background:#51CF66"></span><span style="background:#FCC419"></span>
+      <span style="background:#9775FA"></span><span style="background:#FF922B"></span>
+    </div>
+    <a class="btn play" id="open" href="#" hidden>Open in game</a>
+    <a class="btn appstore" id="appstore" href="#" hidden>Download on the App Store</a>
+    <a class="btn store" id="play" href="#" hidden>Get it on Google Play</a>
+    <p class="note" id="note" hidden>New here? Install, then tap your friend's link again.</p>
+  </main>
+  <main id="missing" hidden>
+    <p class="brand">COLOR CONNECT</p>
+    <h1>Oops</h1>
+    <p class="tag">This challenge link is broken.</p>
+    <a class="btn store" href="/">Go home</a>
+  </main>
+<script>
+(function () {
+  // Challenge link: /c/?l=<level>&t=<time_cs>&s=<sig> (SOCIAL_DESIGN.md §1.1 in the game repo).
+  // The page only displays level/time; the game verifies the signature.
+  var PKG = "com.colorconnect.flow";
+  var SCHEME = "colorconnect";   // = [toon_puzzle_kit] links/scheme in the game
+  var APP_STORE_ID = "";         // numeric Apple ID — empty until the app is on App Store Connect
+  var APP_STORE_PT = "";         // App Store Connect provider token (campaign links, §6)
+  var OPEN_FALLBACK_MS = 1500;   // iOS: still here after tapping Open = game not installed
+
+  var q = new URLSearchParams(location.search);
+  var l = q.get("l");
+  if (!l || !/^\d+$/.test(l) || +l < 1) { document.getElementById("missing").hidden = false; return; }
+  document.getElementById("challenge").hidden = false;
+  var level = +l;
+  var t = q.get("t");
+  document.title = "Color Connect: Level " + level + " challenge";
+  document.getElementById("level").textContent = "LEVEL " + level;
+  if (t && /^\d+$/.test(t)) {
+    var cs = +t, min = Math.floor(cs / 6000), sec = Math.floor(cs / 100) % 60, c = cs % 100;
+    var el = document.getElementById("time");
+    el.textContent = min + ":" + String(sec).padStart(2, "0") + "." + String(c).padStart(2, "0");
+    el.hidden = false;
+    document.getElementById("tag").textContent = "Can you beat my time?";
+  }
+
+  // The game reads this exact link back from the Play install referrer (link=...), so a
+  // brand-new Android player lands straight in the challenge after installing.
+  var link = location.origin + location.pathname + location.search;
+  var referrer = "utm_source=challenge&utm_medium=share&utm_campaign=level&link=" + encodeURIComponent(link);
+  var play = "https://play.google.com/store/apps/details?id=" + PKG + "&referrer=" + encodeURIComponent(referrer);
+  var appStore = APP_STORE_ID === "" ? "" : "https://apps.apple.com/app/id" + APP_STORE_ID +
+    "?" + (APP_STORE_PT === "" ? "" : "pt=" + APP_STORE_PT + "&") + "ct=challenge";
+  document.getElementById("play").href = play;
+  document.getElementById("appstore").href = appStore;
+
+  var ua = navigator.userAgent;
+  var android = /Android/i.test(ua);
+  // iPadOS reports itself as a Mac; a touch screen tells them apart.
+  var ios = /iPhone|iPad|iPod/i.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  var open = document.getElementById("open");
+
+  if (android) {
+    // In-app browsers (LINE, Facebook, Instagram) usually don't fire App Links, so give an
+    // explicit button: intent:// opens the game, or falls back to the store link.
+    open.href = "intent://" + location.host + location.pathname + location.search +
+      "#Intent;scheme=https;package=" + PKG + ";S.browser_fallback_url=" + encodeURIComponent(play) + ";end";
+    open.hidden = false;
+    document.getElementById("play").hidden = false;
+  } else if (ios) {
+    // A Universal Link tapped on its own domain never opens the app, and in-app browsers
+    // often ignore them: the custom scheme works everywhere. The game maps it back onto
+    // https://<host>/c/?l=...  No deferred link on iOS: a new player installs, then taps
+    // the friend's link again (the note says so).
+    open.href = SCHEME + "://c/" + location.search;
+    open.hidden = false;
+    document.getElementById("note").hidden = false;
+    if (appStore !== "") document.getElementById("appstore").hidden = false;
+    var timer = 0;
+    var cancel = function () { clearTimeout(timer); };
+    document.addEventListener("visibilitychange", function () { if (document.hidden) cancel(); });
+    window.addEventListener("pagehide", cancel);
+    open.addEventListener("click", function () {
+      cancel();
+      timer = setTimeout(function () {
+        if (!document.hidden && appStore !== "") location.href = appStore;
+      }, OPEN_FALLBACK_MS);
+    });
+  } else {
+    // Desktop: no game here — show the stores so the link can be opened on a phone later.
+    document.getElementById("play").hidden = false;
+    if (appStore !== "") document.getElementById("appstore").hidden = false;
+  }
+})();
+</script>
+</body>
+</html>
