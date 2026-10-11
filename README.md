@@ -7,7 +7,7 @@ Static site for iKaizen games (GitHub Pages user site).
   - iOS: **Open in game** = `izecolorconnect://c/?l=…` (a Universal Link tapped on its own domain never opens the app) — if the page is still visible after a moment, go to the App Store · **App Store** button · note "install, then tap your friend's link again" (no deferred link on iOS). The App Store button stays hidden until `APP_STORE_ID` (and `APP_STORE_PT`, the provider token for campaign links) are filled in at the top of the script.
   - Desktop: the store buttons.
 - `/c/<level>?…` — the older link form: no file, so Pages serves `404.html`, which redirects it to `/c/?l=<level>&…`.
-- `og.png` (1200×630) — rendered from `og/og.html`: `"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --hide-scrollbars --window-size=1200,630 --virtual-time-budget=5000 --screenshot=og.png "file://$PWD/og/og.html"`
+- `og.png` (1200×630) — link-preview image (an unsolved board with a "?": the game shares text + link only, so this card is the picture friends see). Rendered by the game repo: `Godot --path . --script tools/render_og.gd` → `store/og.png`, copied here.
 - `/.well-known/assetlinks.json` — Android App Links verification for `com.colorconnect.flow` (`.nojekyll` keeps Pages from dropping the dot-folder). SHA-256s: Play app signing key (store installs), upload key, debug key (dev builds) — Play Console → Protected by Google Play → App signing.
 - `/.well-known/apple-app-site-association` — iOS Universal Links: `VN246TCC33.com.colorconnect.flow`, paths `/c/*`.
 - `/app-ads.txt` — AdMob seller line for publisher `pub-8841516934558170`. The store listings' developer website must be `https://ikaizen.github.io` for AdMob to find it.
