@@ -1,0 +1,12 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["VN246TCC33.com.colorconnect.flow"],
+        "components": [
+          { "/": "/c/*", "comment": "Color Connect challenge links" }
+        ]
+      }
+    ]
+  }
+}

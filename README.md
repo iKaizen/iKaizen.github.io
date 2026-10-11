@@ -8,5 +8,7 @@ Static site for iKaizen games (GitHub Pages user site).
   - Desktop: the store buttons.
 - `/c/<level>?…` — the older link form: no file, so Pages serves `404.html`, which redirects it to `/c/?l=<level>&…`.
 - `og.png` (1200×630) — rendered from `og/og.html`: `"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --hide-scrollbars --window-size=1200,630 --virtual-time-budget=5000 --screenshot=og.png "file://$PWD/og/og.html"`
-- `/.well-known/assetlinks.json` — Android App Links verification for `com.colorconnect.flow` (`.nojekyll` keeps Pages from dropping the dot-folder). Add the **Play app signing** SHA-256 (Play Console → Test and release → App integrity) before relying on verified links in the store build.
+- `/.well-known/assetlinks.json` — Android App Links verification for `com.colorconnect.flow` (`.nojekyll` keeps Pages from dropping the dot-folder). SHA-256s: Play app signing key (store installs), upload key, debug key (dev builds) — Play Console → Protected by Google Play → App signing.
+- `/.well-known/apple-app-site-association` — iOS Universal Links: `VN246TCC33.com.colorconnect.flow`, paths `/c/*`.
+- `/app-ads.txt` — AdMob seller line for publisher `pub-8841516934558170`. The store listings' developer website must be `https://ikaizen.github.io` for AdMob to find it.
 - Link format, signature and game side: `SOCIAL_DESIGN.md` §1 in the game repo.
