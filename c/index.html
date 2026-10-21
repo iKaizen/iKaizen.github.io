@@ -74,6 +74,14 @@
   var OPEN_FALLBACK_MS = 1500;   // iOS: still here after tapping Open = game not installed
 
   var q = new URLSearchParams(location.search);
+  // /c/<level>/ pages (and the old /c/<level>?t=… form, which Pages now redirects to
+  // /c/<level>/?t=…) may carry the level only in the path: copy it into ?l= so the iOS
+  // custom-scheme hand-off below, which forwards location.search, keeps it.
+  var pm = location.pathname.match(/^\/c\/(\d+)\/?$/);
+  if (!q.get("l") && pm) {
+    q.set("l", pm[1]);
+    history.replaceState(null, "", location.pathname + "?" + q.toString());
+  }
   var l = q.get("l");
   if (!l || !/^\d+$/.test(l) || +l < 1) { document.getElementById("missing").hidden = false; return; }
   document.getElementById("challenge").hidden = false;
